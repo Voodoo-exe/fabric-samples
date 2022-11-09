@@ -21,6 +21,8 @@ class AssetTransfer extends Contract {
                 Size: 5,
                 Owner: 'Tomoko',
                 AppraisedValue: 300,
+                QuotedValue: 400,
+                MarketValue: 700,
             },
             {
                 ID: 'asset2',
@@ -28,6 +30,8 @@ class AssetTransfer extends Contract {
                 Size: 5,
                 Owner: 'Brad',
                 AppraisedValue: 400,
+                QuotedValue: 300,
+                MarketValue: 600,
             },
             {
                 ID: 'asset3',
@@ -35,6 +39,8 @@ class AssetTransfer extends Contract {
                 Size: 10,
                 Owner: 'Jin Soo',
                 AppraisedValue: 500,
+                QuotedValue: 450,
+                MarketValue: 750,
             },
             {
                 ID: 'asset4',
@@ -42,6 +48,8 @@ class AssetTransfer extends Contract {
                 Size: 10,
                 Owner: 'Max',
                 AppraisedValue: 600,
+                QuotedValue: 200,
+                MarketValue: 600,
             },
             {
                 ID: 'asset5',
@@ -49,6 +57,8 @@ class AssetTransfer extends Contract {
                 Size: 15,
                 Owner: 'Adriana',
                 AppraisedValue: 700,
+                QuotedValue: 700,
+                MarketValue: 300,
             },
             {
                 ID: 'asset6',
@@ -56,6 +66,8 @@ class AssetTransfer extends Contract {
                 Size: 15,
                 Owner: 'Michel',
                 AppraisedValue: 800,
+                QuotedValue: 900,
+                MarketValue: 200,
             },
         ];
 
@@ -70,7 +82,7 @@ class AssetTransfer extends Contract {
     }
 
     // CreateAsset issues a new asset to the world state with given details.
-    async CreateAsset(ctx, id, color, size, owner, appraisedValue) {
+    async CreateAsset(ctx, id, color, size, owner, appraisedValue, quotedValue, marketValue) {
         const exists = await this.AssetExists(ctx, id);
         if (exists) {
             throw new Error(`The asset ${id} already exists`);
@@ -82,6 +94,8 @@ class AssetTransfer extends Contract {
             Size: size,
             Owner: owner,
             AppraisedValue: appraisedValue,
+            QuotedValue:quotedValue,
+            MarketValue: marketValue,
         };
         //we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
         await ctx.stub.putState(id, Buffer.from(stringify(sortKeysRecursive(asset))));
@@ -98,7 +112,7 @@ class AssetTransfer extends Contract {
     }
 
     // UpdateAsset updates an existing asset in the world state with provided parameters.
-    async UpdateAsset(ctx, id, color, size, owner, appraisedValue) {
+    async UpdateAsset(ctx, id, color, size, owner, appraisedValue,  quotedValue, marketValue) {
         const exists = await this.AssetExists(ctx, id);
         if (!exists) {
             throw new Error(`The asset ${id} does not exist`);
@@ -111,6 +125,8 @@ class AssetTransfer extends Contract {
             Size: size,
             Owner: owner,
             AppraisedValue: appraisedValue,
+            QuotedValue:quotedValue,
+            MarketValue: marketValue,
         };
         // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
         return ctx.stub.putState(id, Buffer.from(stringify(sortKeysRecursive(updatedAsset))));
@@ -143,6 +159,27 @@ class AssetTransfer extends Contract {
     }
 
     // GetAllAssets returns all assets found in the world state.
+    // async GetAllAssets(ctx) {
+    //     const allResults = [];
+    //     // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
+    //     const iterator = await ctx.stub.getStateByRange('', '');
+    //     let result = await iterator.next();
+    //     while (!result.done) {
+    //         const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+    //         let record;
+    //         try {
+    //             record = JSON.parse(strValue);
+    //         } catch (err) {
+    //             console.log(err);
+    //             record = strValue;
+    //         }
+    //         allResults.push(record);
+    //         result = await iterator.next();
+    //     }
+    //     return JSON.stringify(allResults);
+    // }
+
+
     async GetAllAssets(ctx) {
         const allResults = [];
         // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
@@ -157,8 +194,14 @@ class AssetTransfer extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+
+            if(Number(record.MarketValue) >= Number(record.QuotedValue)){
+              allResults.push(record);
+
+
+            }
             result = await iterator.next();
+
         }
         return JSON.stringify(allResults);
     }

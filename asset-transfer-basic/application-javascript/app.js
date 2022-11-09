@@ -1,8 +1,3 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
 
 'use strict';
 
@@ -47,9 +42,7 @@ function prettyJSONString(inputString) {
 /*
     2020-08-07T20:23:17.590Z - error: [DiscoveryService]: send[mychannel] - Channel:mychannel received discovery error:access denied
     ******** FAILED to run the application: Error: DiscoveryService: mychannel error: access denied
-
    OR
-
    Failed to register user : Error: fabric-ca request register failed with errors [[ { code: 20, message: 'Authentication failure' } ]]
    ******** FAILED to run the application: Error: Identity not found in wallet: appUser
 */
@@ -128,7 +121,7 @@ async function main() {
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
 			// to the orderer to be committed by each of the peer's to the channel ledger.
 			console.log('\n--> Submit Transaction: CreateAsset, creates new asset with ID, color, owner, size, and appraisedValue arguments');
-			result = await contract.submitTransaction('CreateAsset', 'asset13', 'yellow', '5', 'Tom', '1300');
+			result = await contract.submitTransaction('CreateAsset', 'asset13', 'yellow', '5', 'Tom', '1300', 9, 2);
 			console.log('*** Result: committed');
 			if (`${result}` !== '') {
 				console.log(`*** Result: ${prettyJSONString(result.toString())}`);
@@ -143,7 +136,7 @@ async function main() {
 			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			console.log('\n--> Submit Transaction: UpdateAsset asset1, change the appraisedValue to 350');
-			await contract.submitTransaction('UpdateAsset', 'asset1', 'blue', '5', 'Tomoko', '350');
+			await contract.submitTransaction('UpdateAsset', 'asset1', 'blue', '5', 'Tomoko', '350', 9, 10);
 			console.log('*** Result: committed');
 
 			console.log('\n--> Evaluate Transaction: ReadAsset, function returns "asset1" attributes');
@@ -154,7 +147,7 @@ async function main() {
 				// How about we try a transactions where the executing chaincode throws an error
 				// Notice how the submitTransaction will throw an error containing the error thrown by the chaincode
 				console.log('\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error');
-				await contract.submitTransaction('UpdateAsset', 'asset70', 'blue', '5', 'Tomoko', '300');
+				await contract.submitTransaction('UpdateAsset', 'asset70', 'blue', '5', 'Tomoko', '300', 6, 8);
 				console.log('******** FAILED to return an error');
 			} catch (error) {
 				console.log(`*** Successfully caught the error: \n    ${error}`);
